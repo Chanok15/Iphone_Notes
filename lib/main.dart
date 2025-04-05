@@ -71,6 +71,40 @@ class _MyAppState extends State<MyApp> {
                                     });
                                   Navigator.pop(context);
                                 }),
+      CupertinoButton(child: Text ('No'), onPressed: (){
+
+                                  Navigator.pop(context);
+                                }),
+                              ],
+                            );
+                          });
+                        },
+                        onTap: (){
+
+                         setState(() {
+                           item[index]['status'] = !item[index]['status'];
+                            box.put('todo', item);
+                         });
+
+                        },
+                        child: Container(
+                          child: CupertinoListTile(
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(item[index]['task'], style: TextStyle(decoration: item[index]['status']? TextDecoration.lineThrough : null),),
+                                  Icon(CupertinoIcons.circle_fill, size: 15, color: item[index]['status']?CupertinoColors.activeGreen: CupertinoColors.destructiveRed,)
+                                ],
+                              ),
+                            subtitle: Divider(color: CupertinoColors.systemFill.withOpacity(0.5)),
+                          ),
+                        ),
+                      );
+
+
+                 }) ),
+
+
         ),
       ),
     );
