@@ -82,21 +82,25 @@ class _NotesAppState extends State<NotesApp> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text(
-          'Task',
-          style: TextStyle(color: CupertinoColors.systemYellow),
+        middle: Text('Notes', style: TextStyle(color: CupertinoColors.black)),
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: Text('Folders', style: TextStyle(color: CupertinoColors.activeBlue)),
+          onPressed: () {
+          },
         ),
       ),
       child: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Text('ToDo',
-                    style:
-                        TextStyle(fontWeight: FontWeight.w700, fontSize: 30)),
-              ],
+            CupertinoSearchTextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {});
+              },
+              placeholder: 'Search Notes',
+              prefixIcon: Icon(CupertinoIcons.search),
+              suffixIcon: Icon(CupertinoIcons.mic_solid),
             ),
             Expanded(
               child: ListView.builder(
