@@ -135,60 +135,61 @@ class _NotesAppState extends State<NotesApp> {
       ),
     );
   }
-                                onPressed: () {
-                                  setState(() {
-                                    item.removeAt(index);
-                                    box.put('todo', item);
-                                  });
-                                  Navigator.pop(context);
-                                },
-                              ),
-                              CupertinoButton(
-                                child: Text('No'),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    onTap: () {
-                      setState(() {
-                        item[index]['status'] = !item[index]['status'];
-                        box.put('todo', item);
-                      });
-                    },
-                    child: Container(
-                      child: CupertinoListTile(
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              item[index]['task'],
-                              style: TextStyle(
-                                  decoration: item[index]['status']
-                                      ? TextDecoration.lineThrough
-                                      : null),
-                            ),
-                            Icon(
-                              CupertinoIcons.circle_fill,
-                              size: 15,
-                              color: item[index]['status']
-                                  ? CupertinoColors.activeGreen
-                                  : CupertinoColors.destructiveRed,
-                            )
-                          ],
-                        ),
-                        subtitle: Divider(
-                            color: CupertinoColors.systemFill.withOpacity(0.5)),
-                      ),
-                    ),
-                  );
+                               Widget _buildSection(String title, List<Map<String, dynamic>> notes) {
+    if (notes.isEmpty) return SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+              if (title == 'Pinned')
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  minSize: 0,
+                  onPressed: () {
+                    setState(() {
+                      _showPinned = !_showPinned;
+                    });
+                  },
+                  child: Icon(CupertinoIcons.chevron_down),
+                ),
+            ],
+          ),
+        ),
+        if (title != 'Pinned' || _showPinned)
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: notes.length,
+            itemBuilder: (context, index) {
+              return Dismissible(
+                key: Key(notes[index]['date'].toString()),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  color: CupertinoColors.destructiveRed,
+                  alignment: Alignment.centerRight,
+                  padding: EdgeInsets.only(right: 20),
+                  child: Icon(CupertinoIcons.delete, color: CupertinoColors.white),
+                ),
+                onDismissed: (direction) {
+                  setState(() {
+                    notesList.removeAt(notesList.indexOf(notes[index]));
+                    _saveNotes();
+                    _loadNotes();
+                  });
                 },
-              ),
-            ),
+                child: _buildNotePreview(notes[index], index),
+              );
+            },
+          ),
+      ],
+    );
+  }
             Container(
               color: CupertinoColors.systemFill.withOpacity(0.1),
               child: Row(
