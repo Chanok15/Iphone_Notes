@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:intl/intl.dart';
-
+import 'edit_note_page.dart'; // Import the new page
 
 void main() async {
   await Hive.initFlutter();
@@ -86,8 +86,7 @@ class _NotesAppState extends State<NotesApp> {
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: Text('Folders', style: TextStyle(color: CupertinoColors.activeBlue)),
-          onPressed: () {
-          },
+          onPressed: () {},
         ),
       ),
       child: SafeArea(
@@ -135,7 +134,8 @@ class _NotesAppState extends State<NotesApp> {
       ),
     );
   }
-                               Widget _buildSection(String title, List<Map<String, dynamic>> notes) {
+
+  Widget _buildSection(String title, List<Map<String, dynamic>> notes) {
     if (notes.isEmpty) return SizedBox.shrink();
 
     return Column(
@@ -190,10 +190,26 @@ class _NotesAppState extends State<NotesApp> {
       ],
     );
   }
-             Widget _buildNotePreview(Map<String, dynamic> note, int index) {
+
+  Widget _buildNotePreview(Map<String, dynamic> note, int index) {
     return GestureDetector(
       onTap: () {
-        _showEditNoteDialog(context, index);
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (context) => EditNotePage(
+              note: note,
+              index: index,
+              onNoteUpdated: (updatedNote) {
+                setState(() {
+                  notesList[index] = updatedNote;
+                  _saveNotes();
+                  _loadNotes();
+                });
+              },
+            ),
+          ),
+        );
       },
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -257,7 +273,8 @@ class _NotesAppState extends State<NotesApp> {
       ),
     );
   }
-                              List<Map<String, dynamic>> _getPinnedNotes(List<Map<String, dynamic>> allNotes) {
+
+  List<Map<String, dynamic>> _getPinnedNotes(List<Map<String, dynamic>> allNotes) {
     return allNotes.where((note) => note['isPinned'] == true).toList();
   }
 
@@ -279,8 +296,8 @@ class _NotesAppState extends State<NotesApp> {
     DateTime sevenDaysAgo = DateTime.now().subtract(Duration(days: 7));
     return allNotes
         .where((note) =>
-            note['date'].isAfter(sevenDaysAgo) &&
-            !DateFormat('yyyy-MM-dd').format(note['date']).startsWith(DateFormat('yyyy-MM-dd').format(DateTime.now())) && note['isPinned'] == false)
+    note['date'].isAfter(sevenDaysAgo) &&
+        !DateFormat('yyyy-MM-dd').format(note['date']).startsWith(DateFormat('yyyy-MM-dd').format(DateTime.now())) && note['isPinned'] == false)
         .toList();
   }
 
@@ -324,59 +341,6 @@ class _NotesAppState extends State<NotesApp> {
                     'isPinned': false,
                     'isLocked': false,
                   });
-                  _saveNotes();
-                  _loadNotes();
-                });
-                _addNoteTitle.clear();
-                _addNoteContent.clear();
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showEditNoteDialog(BuildContext context, int index) {
-    _addNoteTitle.text = notesList[index]['title'] ?? '';
-    _addNoteContent.text = notesList[index]['content'] ?? '';
-
-    showCupertinoDialog(
-      context: context,
-      builder: (context) {
-        return CupertinoAlertDialog(
-          title: Text('Edit Note'),
-          content: Column(
-            children: [
-              CupertinoTextField(
-                placeholder: 'Title',
-                controller: _addNoteTitle,
-              ),
-              SizedBox(height: 8),
-              CupertinoTextField(
-                placeholder: 'Content',
-                controller: _addNoteContent,
-                maxLines: 5,
-              ),
-            ],
-          ),
-          actions: [
-            CupertinoButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                _addNoteTitle.clear();
-                _addNoteContent.clear();
-                Navigator.pop(context);
-              },
-            ),
-            CupertinoButton(
-              child: Text('Save'),
-              onPressed: () {
-                setState(() {
-                  notesList[index]['title'] = _addNoteTitle.text;
-                  notesList[index]['content'] = _addNoteContent.text;
-                  notesList[index]['date'] = DateTime.now();
                   _saveNotes();
                   _loadNotes();
                 });
