@@ -1,18 +1,23 @@
+// main.dart
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:intl/intl.dart';
-import 'edit_note_page.dart'; // Import the new page
+import 'edit_note_page.dart';
+import 'add_note_page.dart';
 
 void main() async {
   await Hive.initFlutter();
   await Hive.openBox('notesBox');
 
-  runApp(CupertinoApp(
-    debugShowCheckedModeBanner: false,
-    home: NotesApp(),
-  ));
+  runApp(
+    CupertinoApp(
+      debugShowCheckedModeBanner: false,
+      home: NotesApp(),
+    ),
+  );
 }
 
 class NotesApp extends StatefulWidget {
@@ -24,8 +29,6 @@ class NotesApp extends StatefulWidget {
 
 class _NotesAppState extends State<NotesApp> {
   List<Map<String, dynamic>> notesList = [];
-  TextEditingController _addNoteTitle = TextEditingController();
-  TextEditingController _addNoteContent = TextEditingController();
   TextEditingController _searchController = TextEditingController();
   var notesBox = Hive.box('notesBox');
   bool _showPinned = true;
@@ -123,7 +126,20 @@ class _NotesAppState extends State<NotesApp> {
                     padding: EdgeInsets.zero,
                     child: Icon(CupertinoIcons.square_pencil, color: CupertinoColors.activeBlue),
                     onPressed: () {
-                      _showAddNoteDialog(context);
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => AddNotePage(
+                            onNoteAdded: (newNote) {
+                              setState(() {
+                                notesList.add(newNote);
+                                _saveNotes();
+                                _loadNotes();
+                              });
+                            },
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ],
@@ -299,59 +315,5 @@ class _NotesAppState extends State<NotesApp> {
     note['date'].isAfter(sevenDaysAgo) &&
         !DateFormat('yyyy-MM-dd').format(note['date']).startsWith(DateFormat('yyyy-MM-dd').format(DateTime.now())) && note['isPinned'] == false)
         .toList();
-  }
-
-  void _showAddNoteDialog(BuildContext context) {
-    showCupertinoDialog(
-      context: context,
-      builder: (context) {
-        return CupertinoAlertDialog(
-          title: Text('Add New Note'),
-          content: Column(
-            children: [
-              CupertinoTextField(
-                placeholder: 'Title',
-                controller: _addNoteTitle,
-              ),
-              SizedBox(height: 8),
-              CupertinoTextField(
-                placeholder: 'Content',
-                controller: _addNoteContent,
-                maxLines: 5,
-              ),
-            ],
-          ),
-          actions: [
-            CupertinoButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                _addNoteTitle.clear();
-                _addNoteContent.clear();
-                Navigator.pop(context);
-              },
-            ),
-            CupertinoButton(
-              child: Text('Save'),
-              onPressed: () {
-                setState(() {
-                  notesList.add({
-                    'title': _addNoteTitle.text,
-                    'content': _addNoteContent.text,
-                    'date': DateTime.now(),
-                    'isPinned': false,
-                    'isLocked': false,
-                  });
-                  _saveNotes();
-                  _loadNotes();
-                });
-                _addNoteTitle.clear();
-                _addNoteContent.clear();
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 }
