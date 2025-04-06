@@ -257,33 +257,83 @@ class _NotesAppState extends State<NotesApp> {
       ),
     );
   }
-                              CupertinoButton(
-                                child: Text('Save'),
-                                onPressed: () {
-                                  setState(() {
-                                    todoList.add({
-                                      "task": _addTask.text,
-                                      "status": false,
-                                    });
-                                    box.put('todo', todoList);
-                                    _loadTodoList(); // Reload the list after adding
-                                  });
-                                  _addTask.text = "";
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
+                              List<Map<String, dynamic>> _getPinnedNotes(List<Map<String, dynamic>> allNotes) {
+    return allNotes.where((note) => note['isPinned'] == true).toList();
+  }
+
+  List<Map<String, dynamic>> _getTodayNotes(List<Map<String, dynamic>> allNotes) {
+    DateTime now = DateTime.now();
+    return allNotes
+        .where((note) => DateFormat('yyyy-MM-dd').format(note['date']) == DateFormat('yyyy-MM-dd').format(now) && note['isPinned'] == false)
+        .toList();
+  }
+
+  List<Map<String, dynamic>> _getYesterdayNotes(List<Map<String, dynamic>> allNotes) {
+    DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
+    return allNotes
+        .where((note) => DateFormat('yyyy-MM-dd').format(note['date']) == DateFormat('yyyy-MM-dd').format(yesterday) && note['isPinned'] == false)
+        .toList();
+  }
+
+  List<Map<String, dynamic>> _getPrevious7DaysNotes(List<Map<String, dynamic>> allNotes) {
+    DateTime sevenDaysAgo = DateTime.now().subtract(Duration(days: 7));
+    return allNotes
+        .where((note) =>
+            note['date'].isAfter(sevenDaysAgo) &&
+            !DateFormat('yyyy-MM-dd').format(note['date']).startsWith(DateFormat('yyyy-MM-dd').format(DateTime.now())) && note['isPinned'] == false)
+        .toList();
+  }
+
+  void _showAddNoteDialog(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: Text('Add New Note'),
+          content: Column(
+            children: [
+              CupertinoTextField(
+                placeholder: 'Title',
+                controller: _addNoteTitle,
               ),
+              SizedBox(height: 8),
+              CupertinoTextField(
+                placeholder: 'Content',
+                controller: _addNoteContent,
+                maxLines: 5,
+              ),
+            ],
+          ),
+          actions: [
+            CupertinoButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                _addNoteTitle.clear();
+                _addNoteContent.clear();
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoButton(
+              child: Text('Save'),
+              onPressed: () {
+                setState(() {
+                  notesList.add({
+                    'title': _addNoteTitle.text,
+                    'content': _addNoteContent.text,
+                    'date': DateTime.now(),
+                    'isPinned': false,
+                    'isLocked': false,
+                  });
+                  _saveNotes();
+                  _loadNotes();
+                });
+                _addNoteTitle.clear();
+                _addNoteContent.clear();
+                Navigator.pop(context);
+              },
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
-}
