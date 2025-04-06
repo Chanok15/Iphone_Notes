@@ -190,40 +190,73 @@ class _NotesAppState extends State<NotesApp> {
       ],
     );
   }
-            Container(
-              color: CupertinoColors.systemFill.withOpacity(0.1),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('               '),
-                  Text(box.get('todo') != null
-                      ? '${box.get('todo').length}ToDo'
-                      : '0 ToDo'),
-                  CupertinoButton(
-                    child: Icon(
-                      CupertinoIcons.square_pencil,
-                      color: CupertinoColors.systemYellow,
-                    ),
-                    onPressed: () {
-                      showCupertinoDialog(
-                        context: context,
-                        builder: (context) {
-                          return CupertinoAlertDialog(
-                            title: Text('Add Task'),
-                            content: CupertinoTextField(
-                              placeholder: 'Add To-Do',
-                              controller: _addTask,
-                            ),
-                            actions: [
-                              CupertinoButton(
-                                child: Text('Close',
-                                    style: TextStyle(
-                                        color: CupertinoColors.destructiveRed)),
-                                onPressed: () {
-                                  _addTask.text = "";
-                                  Navigator.pop(context);
-                                },
-                              ),
+             Widget _buildNotePreview(Map<String, dynamic> note, int index) {
+    return GestureDetector(
+      onTap: () {
+        _showEditNoteDialog(context, index);
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: CupertinoColors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: CupertinoColors.lightBackgroundGray),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      if (note['isPinned'] == true)
+                        Icon(CupertinoIcons.lock_fill, color: CupertinoColors.black, size: 16),
+                      SizedBox(width: 4),
+                      Text(note['title'] ?? 'Untitled', style: TextStyle(color: CupertinoColors.black)),
+                    ],
+                  ),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  minSize: 0,
+                  onPressed: () {
+                    setState(() {
+                      note['isPinned'] = !note['isPinned'];
+                      _saveNotes();
+                    });
+                  },
+                  child: Icon(
+                    note['isPinned'] == true ? CupertinoIcons.pin_fill : CupertinoIcons.pin,
+                    color: CupertinoColors.black,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 4),
+            Row(
+              children: [
+                Text(DateFormat('MMM d, HH:mm').format(note['date']), style: TextStyle(color: CupertinoColors.black)),
+                if (note['isPinned'] == true) Text(' Locked', style: TextStyle(color: CupertinoColors.secondaryLabel)),
+              ],
+            ),
+            SizedBox(height: 8),
+            Text(note['content'] ?? '', style: TextStyle(color: CupertinoColors.black)),
+            SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(CupertinoIcons.doc_text, size: 16, color: CupertinoColors.secondaryLabel),
+                SizedBox(width: 4),
+                Text('Notes', style: TextStyle(color: CupertinoColors.secondaryLabel)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
                               CupertinoButton(
                                 child: Text('Save'),
                                 onPressed: () {
