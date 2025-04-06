@@ -100,28 +100,41 @@ class _NotesAppState extends State<NotesApp> {
               },
               placeholder: 'Search Notes',
               prefixIcon: Icon(CupertinoIcons.search),
-              suffixIcon: Icon(CupertinoIcons.mic_solid),
+              suffixIcon: Icon(CupertinoIcons.xmark),
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: todoList.length,
-                itemBuilder: (context, int index) {
-                  final item = todoList;
-                  return GestureDetector(
-                    onLongPress: () {
-                      showCupertinoDialog(
-                        context: context,
-                        builder: (context) {
-                          return CupertinoAlertDialog(
-                            title: Text('Delete'),
-                            content: Text('Remove ${item[index]['task']} ?'),
-                            actions: [
-                              CupertinoButton(
-                                child: Text(
-                                  'Yes',
-                                  style: TextStyle(
-                                      color: CupertinoColors.destructiveRed),
-                                ),
+              child: ListView(
+                children: [
+                  _buildSection('Pinned', _getPinnedNotes(_getFilteredNotes())),
+                  _buildSection('Today', _getTodayNotes(_getFilteredNotes())),
+                  _buildSection('Yesterday', _getYesterdayNotes(_getFilteredNotes())),
+                  _buildSection('Previous 7 Days', _getPrevious7DaysNotes(_getFilteredNotes())),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Center(child: Text('${_getFilteredNotes().length} Notes')),
+                  ),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: Icon(CupertinoIcons.square_pencil, color: CupertinoColors.activeBlue),
+                    onPressed: () {
+                      _showAddNoteDialog(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
                                 onPressed: () {
                                   setState(() {
                                     item.removeAt(index);
