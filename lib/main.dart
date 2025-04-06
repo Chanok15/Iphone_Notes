@@ -337,3 +337,57 @@ class _NotesAppState extends State<NotesApp> {
       },
     );
   }
+
+  void _showEditNoteDialog(BuildContext context, int index) {
+    _addNoteTitle.text = notesList[index]['title'] ?? '';
+    _addNoteContent.text = notesList[index]['content'] ?? '';
+
+    showCupertinoDialog(
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: Text('Edit Note'),
+          content: Column(
+            children: [
+              CupertinoTextField(
+                placeholder: 'Title',
+                controller: _addNoteTitle,
+              ),
+              SizedBox(height: 8),
+              CupertinoTextField(
+                placeholder: 'Content',
+                controller: _addNoteContent,
+                maxLines: 5,
+              ),
+            ],
+          ),
+          actions: [
+            CupertinoButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                _addNoteTitle.clear();
+                _addNoteContent.clear();
+                Navigator.pop(context);
+              },
+            ),
+            CupertinoButton(
+              child: Text('Save'),
+              onPressed: () {
+                setState(() {
+                  notesList[index]['title'] = _addNoteTitle.text;
+                  notesList[index]['content'] = _addNoteContent.text;
+                  notesList[index]['date'] = DateTime.now();
+                  _saveNotes();
+                  _loadNotes();
+                });
+                _addNoteTitle.clear();
+                _addNoteContent.clear();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
