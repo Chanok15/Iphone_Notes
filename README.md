@@ -1,4 +1,4 @@
-# iphone_notes_app
+# iNotes
 
 A new Flutter project.
 
