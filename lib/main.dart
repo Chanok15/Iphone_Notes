@@ -1,5 +1,3 @@
-// main.dart
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -88,8 +86,48 @@ class _NotesAppState extends State<NotesApp> {
         middle: Text('Notes', style: TextStyle(color: CupertinoColors.black)),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
-          child: Text('Folders', style: TextStyle(color: CupertinoColors.activeBlue)),
+          child: Text('Notes', style: TextStyle(color: CupertinoColors.white)),
           onPressed: () {},
+        ),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: Icon(CupertinoIcons.settings),
+          onPressed: () {
+            showCupertinoModalPopup(
+              context: context,
+              builder: (BuildContext context) => CupertinoActionSheet(
+                title: const Text('Team Members'),
+                message: const Text('Developed by:'),
+                actions: <CupertinoActionSheetAction>[
+                  CupertinoActionSheetAction(
+                    child: const Text('Estoque Rence'),
+                    onPressed: () {
+                      Navigator.pop(context, 'Estoque Rence');
+                    },
+                  ),
+                  CupertinoActionSheetAction(
+                    child: const Text('Suva Christian'),
+                    onPressed: () {
+                      Navigator.pop(context, 'Suva Christian');
+                    },
+                  ),
+                  CupertinoActionSheetAction(
+                    child: const Text('Villa Aron'),
+                    onPressed: () {
+                      Navigator.pop(context, 'Villa Aron');
+                    },
+                  ),
+                ],
+                cancelButton: CupertinoActionSheetAction(
+                  child: const Text('Cancel'),
+                  isDefaultAction: true,
+                  onPressed: () {
+                    Navigator.pop(context, 'Cancel');
+                  },
+                ),
+              ),
+            );
+          },
         ),
       ),
       child: SafeArea(
