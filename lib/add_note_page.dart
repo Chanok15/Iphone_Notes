@@ -18,7 +18,7 @@ class _AddNotePageState extends State<AddNotePage> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: Text('Edit Note'), // Changed title to "Edit Note"
+        middle: Text('Add  Note'), // Changed title to "Edit Note"
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           child: Text('Save'),
